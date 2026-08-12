@@ -2,6 +2,7 @@ mod dns;
 mod hop;
 mod packet;
 mod socket;
+pub mod ws;
 
 pub use hop::{Hop, HopEvent, HopUpdate};
 

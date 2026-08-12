@@ -4,7 +4,7 @@ use axum::response::IntoResponse;
 use serde::Deserialize;
 use std::net::{IpAddr, ToSocketAddrs};
 
-use crate::traceroute::{self, HopEvent, Options};
+use crate::traceroute::{self, Options};
 
 #[derive(Debug, Deserialize)]
 pub struct TracerouteQuery {
