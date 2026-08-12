@@ -99,31 +99,42 @@ async fn send_and_receive(
         let sent_at = Instant::now();
         sock.send_to(&probe, target)?;
 
-        let result = sock.recv()?;
-
-        Ok(match result {
-            None => Hop::timeout(ttl),
-            Some((bytes, from)) => {
-                let rtt = sent_at.elapsed();
-                match packet::parse_icmp_response(&bytes) {
-                    Some(packet::IcmpResponse::TimeExceeded) => Hop {
-                        ttl,
-                        addr: Some(from),
-                        rtt: Some(rtt),
-                        reached_target: false,
-                        hostname: None,
-                    },
-                    Some(packet::IcmpResponse::EchoReply) => Hop {
-                        ttl,
-                        addr: Some(from),
-                        rtt: Some(rtt),
-                        reached_target: true,
-                        hostname: None,
-                    },
-                    _ => Hop::timeout(ttl),
+        // The raw socket receives every ICMP packet on the host, not just
+        // replies to us, so keep reading until a response matches our
+        // identifier/sequence (packet::parse_icmp_response returns None for
+        // anything else) or the 1s read timeout elapses.
+        let sequence = ttl as u16;
+        loop {
+            match sock.recv()? {
+                None => return Ok(Hop::timeout(ttl)),
+                Some((bytes, from)) => {
+                    let rtt = sent_at.elapsed();
+                    match packet::parse_icmp_response(&bytes, identifier, sequence) {
+                        Some(packet::IcmpResponse::TimeExceeded) => {
+                            return Ok(Hop {
+                                ttl,
+                                addr: Some(from),
+                                rtt: Some(rtt),
+                                reached_target: false,
+                                hostname: None,
+                            })
+                        }
+                        Some(packet::IcmpResponse::EchoReply) => {
+                            return Ok(Hop {
+                                ttl,
+                                addr: Some(from),
+                                rtt: Some(rtt),
+                                reached_target: true,
+                                hostname: None,
+                            })
+                        }
+                        // Unmatched packet (not our probe) or an ICMP type
+                        // we don't act on — keep waiting for ours.
+                        _ => continue,
+                    }
                 }
             }
-        })
+        }
     })
     .await
     .context("send/recv task panicked")?
