@@ -6,7 +6,7 @@ export type ConnectionState = "idle" | "connecting" | "running" | "done" | "erro
 /// Backend host/port — hardcoded for now since front/ and back/ are
 /// both local during dev. Worth moving to an env var once this is
 /// deployed anywhere.
-const WS_BASE = "ws://localhost:3000";
+const WS_BASE = "https://traceroute-te-api.onrender.com";
 
 export function useTraceroute() {
   const [hops, setHops] = useState<Hop[]>([]);
