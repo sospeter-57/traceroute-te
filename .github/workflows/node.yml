@@ -13,9 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: install dependencies
+      working-directory: ./front
       run: npm i
 
     - name: run tests
+      working-directory: ./front
       run: npm test
 
 
@@ -26,5 +28,6 @@ jobs:
       - uses: actions/checkout@v7
       
       - name: build
+        working-directory: ./front
         run: npm run build
 
