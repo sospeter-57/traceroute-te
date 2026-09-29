@@ -1,0 +1,37 @@
+name: Traceroute Web Application
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  push:
+    branches: [ "iracus" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: install dependencies
+      working-directory: ./front
+      run: npm i
+
+    - name: run tests
+      working-directory: ./front
+      run: npm test
+
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: install dependencies
+        working-directory: ./front
+        run: npm i
+        
+      - name: build
+        working-directory: ./front
+        run: npm run build
+
