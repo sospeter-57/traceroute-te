@@ -13,7 +13,6 @@ socket2 = { version = "0.5", features = ["all"] }
 axum = { version = "0.7", features = ["ws"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tower-http = { version = "0.5", features = ["cors"] }
 
 [[bin]]
 name = "traceroute-te"
